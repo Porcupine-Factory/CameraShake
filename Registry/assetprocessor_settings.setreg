@@ -1,0 +1,18 @@
+{
+    "Amazon": {
+        "AssetProcessor": {
+            "Settings": {
+                "ScanFolder CameraShake/Assets": {
+                    "watch": "@GEMROOT:CameraShake@/Assets",
+                    "recursive": 1,
+                    "order": 101
+                },
+                "ScanFolder CameraShake/Registry": {
+                    "watch": "@GEMROOT:CameraShake@/Registry",
+                    "recursive": 1,
+                    "order": 102
+                }
+            }
+        }
+    }
+}
