@@ -5,6 +5,7 @@
 #include <AzCore/Component/TransformBus.h>
 #include <AzCore/Serialization/EditContext.h>
 #include <AzFramework/Components/CameraBus.h>
+#include <AzFramework/Physics/NameConstants.h>
 
 namespace CameraShake
 {
@@ -26,16 +27,14 @@ namespace CameraShake
                 ->Field("Trauma", &CameraShakeComponent::m_traumaInitial)
                 ->Field("Decay", &CameraShakeComponent::m_traumaDecay)
                 ->Field("Speed", &CameraShakeComponent::m_freq)
+                ->Attribute(AZ::Edit::Attributes::Suffix, " Hz")
 
-                // Translational Shake group
-                ->Field("X Translation Strength", &CameraShakeComponent::m_xTranslationAmplitude)
-                ->Field("Y Translation Strength", &CameraShakeComponent::m_yTranslationAmplitude)
-                ->Field("Z Translation Strength", &CameraShakeComponent::m_zTranslationAmplitude)
-
-                // Rotational Shake group
-                ->Field("X Rotation Strength", &CameraShakeComponent::m_xRotationAmplitude)
-                ->Field("Y Rotation Strength", &CameraShakeComponent::m_yRotationAmplitude)
-                ->Field("Z Rotation Strength", &CameraShakeComponent::m_zRotationAmplitude)
+                // Translational Shake
+                ->Field("Translation Amplitudes", &CameraShakeComponent::m_translationAmplitudes)
+                ->Attribute(AZ::Edit::Attributes::Suffix, " " + Physics::NameConstants::GetLengthUnit())
+                // Rotational Shake
+                ->Field("Rotation Amplitudes", &CameraShakeComponent::m_rotationAmplitudes)
+                ->Attribute(AZ::Edit::Attributes::Suffix, " " + AZStd::string(" rad"))
                 ->Version(1);
 
             if (AZ::EditContext* ec = sc->GetEditContext())
@@ -46,54 +45,16 @@ namespace CameraShake
                     ->Attribute(Attributes::AppearsInAddComponentMenu, AZ_CRC_CE("Game"))
 
                     ->DataElement(nullptr, &CameraShakeComponent::m_shakeEntityId, "Shake Entity", "Entity to shake (e.g., player camera or primitive). Defaults to active camera if blank.")
-
                     ->DataElement(nullptr, &CameraShakeComponent::m_strShake, "Shake Input Key", "Key to initiate or test shake.")
-
                     ->DataElement(nullptr, &CameraShakeComponent::m_traumaInitial, "Trauma", "Total shake strength")
+                    ->DataElement(nullptr, &CameraShakeComponent::m_translationAmplitudes, "Translation Amplitudes", "X/Y/Z translational shake strengths")
+                    ->DataElement(nullptr, &CameraShakeComponent::m_rotationAmplitudes, "Rotation Amplitudes", "X/Y/Z rotational shake strengths")
                     ->DataElement(
                         nullptr,
                         &CameraShakeComponent::m_traumaDecay,
                         "Decay",
                         "Adjusts the length of the shake. Value of 0 produces infinite length.")
-                    ->DataElement(nullptr, &CameraShakeComponent::m_freq, "Speed", "Frequency of the shake")
-
-                    // Translational Shake group
-                    ->ClassElement(AZ::Edit::ClassElements::Group, "Translational Shake Strength")
-                    ->Attribute(AZ::Edit::Attributes::AutoExpand, true)
-                    ->DataElement(
-                        nullptr,
-                        &CameraShakeComponent::m_xTranslationAmplitude,
-                        "X Translation Strength",
-                        "Amplitude of the translational shake along X")
-                    ->DataElement(
-                        nullptr,
-                        &CameraShakeComponent::m_yTranslationAmplitude,
-                        "Y Translation Strength",
-                        "Amplitude of the translational shake along Y")
-                    ->DataElement(
-                        nullptr,
-                        &CameraShakeComponent::m_zTranslationAmplitude,
-                        "Z Translation Strength",
-                        "Amplitude of the translational shake along Z")
-
-                    // Rotational Shake group
-                    ->ClassElement(AZ::Edit::ClassElements::Group, "Rotational Shake Strength")
-                    ->Attribute(AZ::Edit::Attributes::AutoExpand, true)
-                    ->DataElement(
-                        nullptr,
-                        &CameraShakeComponent::m_xRotationAmplitude,
-                        "X Rotation Strength",
-                        "Amplitude/Maximum Angle of the rotational shake about X")
-                    ->DataElement(
-                        nullptr,
-                        &CameraShakeComponent::m_yRotationAmplitude,
-                        "Y Rotation Strength",
-                        "Amplitude/Maximum Angle of the rotational shake about Y")
-                    ->DataElement(
-                        nullptr,
-                        &CameraShakeComponent::m_zRotationAmplitude,
-                        "Z Rotation Strength",
-                        "Amplitude/Maximum Angle of the rotational shake about Z");
+                    ->DataElement(nullptr, &CameraShakeComponent::m_freq, "Speed", "Frequency of the shake");
             }
         }
 
@@ -103,13 +64,24 @@ namespace CameraShake
                 ->Attribute(AZ::Script::Attributes::Scope, AZ::Script::Attributes::ScopeFlags::Common)
                 ->Attribute(AZ::Script::Attributes::Module, "camerashake")
                 ->Attribute(AZ::Script::Attributes::Category, "Camera Shake")
-                ->Event("Start Shake", &CameraShakeComponentRequests::StartShake)
+                ->Event("Start Shake With Defaults", &CameraShakeComponentRequests::StartShakeWithDefaults)
+                ->Event("Start Shake", &CameraShakeComponentRequests::StartShake, AZStd::array<AZ::BehaviorParameterOverrides, 6>{{
+                        AZ::BehaviorParameterOverrides("ShakeEntityId", "Entity to shake (valid ID required)"),
+                            AZ::BehaviorParameterOverrides("Trauma", "Initial trauma strength"),
+                            AZ::BehaviorParameterOverrides("Decay", "Decay rate"),
+                            AZ::BehaviorParameterOverrides("Speed", "Shake frequency"),
+                            AZ::BehaviorParameterOverrides("TranslationAmplitudes", "X/Y/Z translation strengths"),
+                            AZ::BehaviorParameterOverrides("RotationAmplitudes", "X/Y/Z rotation strengths")
+                    }})
                 ->Event("Get Trauma", &CameraShakeComponentRequests::GetTrauma)
                 ->Event("Set Trauma", &CameraShakeComponentRequests::SetTrauma)
                 ->Event("Get Decay", &CameraShakeComponentRequests::GetDecay)
                 ->Event("Set Decay", &CameraShakeComponentRequests::SetDecay)
                 ->Event("Get Speed", &CameraShakeComponentRequests::GetSpeed)
-                ->Event("Set Speed", &CameraShakeComponentRequests::SetSpeed);
+                ->Event("Set Speed", &CameraShakeComponentRequests::SetSpeed)
+                ->Event("Get Shake Entity Id", &CameraShakeComponentRequests::GetShakeEntityId)
+                ->Event("Set Shake Entity Id", &CameraShakeComponentRequests::SetShakeEntityId, AZStd::array<AZ::BehaviorParameterOverrides, 1>{{
+                        AZ::BehaviorParameterOverrides("Shake EntityId", "ID of the entity to shake (invalid falls back to active camera)")}});
         }
     }
 
@@ -119,6 +91,13 @@ namespace CameraShake
         InputEventNotificationBus::MultiHandler::BusConnect(m_shakeEventId);
 
         AZ::TickBus::Handler::BusConnect();
+
+        m_defaultTraumaInitial = m_traumaInitial;
+        m_defaultTraumaDecay = m_traumaDecay;
+        m_defaultFreq = m_freq;
+        m_defaultTranslationAmplitudes = m_translationAmplitudes;
+        m_defaultRotationAmplitudes = m_rotationAmplitudes;
+        m_defaultShakeEntityId = m_shakeEntityId;
 
         // When the entity is activated, set our current trauma level (m_trauma) to m_traumaInitial
         m_trauma = m_traumaInitial;
@@ -194,7 +173,7 @@ namespace CameraShake
 
         if (*inputId == m_shakeEventId && value > 0.f)
         {
-            StartShake();
+            StartShakeWithDefaults();
         }
     }
 
@@ -254,17 +233,17 @@ namespace CameraShake
         {
             // Create a Vector3 with Perlin Noise values and amplitude multipliers for each axis. Used for translation.
             m_shakeTranslation = AZ::Vector3(
-                GenFastNoise(m_Random) * m_xTranslationAmplitude,
-                GenFastNoise(m_Random + 2) * m_yTranslationAmplitude,
-                GenFastNoise(m_Random + 3) * m_zTranslationAmplitude) *
+                GenFastNoise(m_Random) * m_translationAmplitudes.GetX(),
+                GenFastNoise(m_Random + 2) * m_translationAmplitudes.GetY(),
+                GenFastNoise(m_Random + 3) * m_translationAmplitudes.GetZ()) *
                 (m_trauma * m_trauma);
 
             // Create a Quaternion with Perlin Noise values and amplitude multipliers for each axis. Used for rotation.
             AZ::Quaternion shakeRotation = AZ::Quaternion::CreateFromEulerAnglesRadians(
                 AZ::Vector3(
-                    GenFastNoise(m_Random + 4) * m_xRotationAmplitude,
-                    GenFastNoise(m_Random + 5) * m_yRotationAmplitude,
-                    GenFastNoise(m_Random + 6) * m_zRotationAmplitude) *
+                    GenFastNoise(m_Random + 4) * m_rotationAmplitudes.GetX(),
+                    GenFastNoise(m_Random + 5) * m_rotationAmplitudes.GetY(),
+                    GenFastNoise(m_Random + 6) * m_rotationAmplitudes.GetZ()) *
                 (m_trauma * m_trauma));
 
             // Converting to Euler Radians to make the math a bit easier
@@ -294,6 +273,38 @@ namespace CameraShake
         }
     }
 
+    void CameraShakeComponent::SetShakeEntity(const AZ::EntityId& id)
+    {
+        // Disconnect existing handlers
+        if (m_needsCameraFallback)
+        {
+            Camera::CameraNotificationBus::Handler::BusDisconnect();
+            m_needsCameraFallback = false;
+        }
+        AZ::EntityBus::Handler::BusDisconnect();
+
+        m_shakeEntityId = id;
+        m_shakeEntityPtr = nullptr;
+
+        if (!m_shakeEntityId.IsValid())
+        {
+            m_shakeEntityPtr = GetActiveCamera();
+            if (m_shakeEntityPtr == nullptr)
+            {
+                m_needsCameraFallback = true;
+                Camera::CameraNotificationBus::Handler::BusConnect();
+            }
+        }
+        else
+        {
+            m_shakeEntityPtr = GetEntityPtr(m_shakeEntityId);
+            if (m_shakeEntityPtr == nullptr)
+            {
+                AZ::EntityBus::Handler::BusConnect(m_shakeEntityId);
+            }
+        }
+    }
+
     float CameraShakeComponent::GenFastNoise(int Seed)
     {
         FastNoise noiseValues;
@@ -307,9 +318,37 @@ namespace CameraShake
         return m_perlinFastNoise;
     }
 
-    // Request Bus getter and setter methods for use in scripts
-    void CameraShakeComponent::StartShake()
+    // Parameterless: Uses component defaults
+    void CameraShakeComponent::StartShakeWithDefaults()
     {
+        // Reset runtime state to editor component values (ignores prior overrides)
+        m_traumaInitial = m_defaultTraumaInitial;
+        m_traumaDecay = m_defaultTraumaDecay;
+        m_freq = m_defaultFreq;
+        m_translationAmplitudes = m_defaultTranslationAmplitudes;
+        m_rotationAmplitudes = m_defaultRotationAmplitudes;
+        SetShakeEntity(m_defaultShakeEntityId);
+
+        // Refresh for fresh shake (uses new baseline)
+        m_initiateShake = true;
+        m_trauma = m_traumaInitial;
+        m_currentTime = 0.f;
+    }
+
+    // Parameterized: Full override (all parameters required)
+    void CameraShakeComponent::StartShake(const AZ::EntityId& shakeEntityId, const float& new_traumaInitial, const float& new_traumaDecay, const float& new_freq, const AZ::Vector3& new_translationAmplitudes, const AZ::Vector3& new_rotationAmplitudes)
+    {
+        if (shakeEntityId.IsValid())
+        {
+            SetShakeEntity(shakeEntityId);
+        }
+        m_traumaInitial = new_traumaInitial;
+        m_traumaDecay = new_traumaDecay;
+        m_freq = new_freq;
+        m_translationAmplitudes = new_translationAmplitudes;
+        m_rotationAmplitudes = new_rotationAmplitudes;
+
+        // Start the shake with overridden values
         m_initiateShake = true;
         m_trauma = m_traumaInitial;
         m_currentTime = 0.f;
@@ -343,5 +382,15 @@ namespace CameraShake
     void CameraShakeComponent::SetSpeed(const float& new_freq)
     {
         m_freq = new_freq;
+    }
+
+    AZ::EntityId CameraShakeComponent::GetShakeEntityId() const
+    {
+        return m_shakeEntityId;
+    }
+
+    void CameraShakeComponent::SetShakeEntityId(const AZ::EntityId& entityId)
+    {
+        SetShakeEntity(entityId);
     }
 } // namespace CameraShake

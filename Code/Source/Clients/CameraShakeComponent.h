@@ -46,18 +46,22 @@ namespace CameraShake
         void OnActiveViewChanged(const AZ::EntityId& activeEntityId) override;
 
         // CameraShakeComponentRequestBus
-        void StartShake() override;
+        void StartShakeWithDefaults() override;
+        void StartShake(const AZ::EntityId& shakeEntityId, const float& new_traumaInitial, const float& new_traumaDecay, const float& new_freq, const AZ::Vector3& new_translationAmplitudes, const AZ::Vector3& new_rotationAmplitudes) override;
         float GetTrauma() const override;
         void SetTrauma(const float& new_traumaInitial) override;
         float GetDecay() const override;
         void SetDecay(const float& new_traumaDecay) override;
         float GetSpeed() const override;
         void SetSpeed(const float& new_freq) override;
+        AZ::EntityId GetShakeEntityId() const override;
+        void SetShakeEntityId(const AZ::EntityId& new_entityId) override;
 
     private:
         AZ::Entity* GetActiveCamera() const;
 
         AZ::EntityId m_shakeEntityId;
+        AZ::EntityId m_defaultShakeEntityId;
         AZ::Entity* m_shakeEntityPtr = nullptr;
         bool m_needsCameraFallback = false;
 
@@ -66,6 +70,7 @@ namespace CameraShake
 
         void Shake(const float& deltaTime);
         float GenFastNoise(int genSeed);
+        void SetShakeEntity(const AZ::EntityId& id);
 
         bool m_initiateShake = false;
 
@@ -74,21 +79,25 @@ namespace CameraShake
         AZ::Vector3 m_shakeTranslation = AZ::Vector3::CreateZero();
         AZ::Vector3 m_shakeRotation = AZ::Vector3::CreateZero();
 
-        int m_Random = 0;
+        // Component defaults
+        float m_defaultTraumaInitial = 1.3f;
+        float m_defaultTraumaDecay = 2.f;
+        float m_defaultFreq = 19.f;
+        AZ::Vector3 m_defaultTranslationAmplitudes = AZ::Vector3(0.02f, 0.f, 0.02f);
+        AZ::Vector3 m_defaultRotationAmplitudes = AZ::Vector3(0.04f, 0.01f, 0.05f);
 
-        float m_traumaInitial = 1.3f;
+        // Runtime copies
+        float m_traumaInitial = m_defaultTraumaInitial;
+        float m_traumaDecay = m_defaultTraumaDecay;
+        float m_freq = m_defaultFreq;
+        AZ::Vector3 m_translationAmplitudes = m_defaultTranslationAmplitudes;
+        AZ::Vector3 m_rotationAmplitudes = m_defaultRotationAmplitudes;
+
         float m_trauma = 0.f;
-        float m_traumaDecay = 2.f;
-        float m_freq = 19.f;
-        float m_xTranslationAmplitude = 0.02f;
-        float m_yTranslationAmplitude = 0.f;
-        float m_zTranslationAmplitude = 0.02f;
-        float m_xRotationAmplitude = 0.04f;
-        float m_yRotationAmplitude = 0.01f;
-        float m_zRotationAmplitude = 0.05f;
-        float m_perlinFastNoise;
+        float m_perlinFastNoise = 0.f;
         float m_currentTime = 0.f;
         float m_perlinNoise = 0.f;
         float m_ShakeKey = 0.f;
+        int m_Random = 0;
     };
 } // namespace CameraShake
