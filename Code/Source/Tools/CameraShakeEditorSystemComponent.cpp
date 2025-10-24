@@ -1,20 +1,19 @@
 
-#include <AzCore/Serialization/SerializeContext.h>
 #include "CameraShakeEditorSystemComponent.h"
+#include <AzCore/Serialization/SerializeContext.h>
 
 #include <CameraShake/CameraShakeTypeIds.h>
 
 namespace CameraShake
 {
-    AZ_COMPONENT_IMPL(CameraShakeEditorSystemComponent, "CameraShakeEditorSystemComponent",
-        CameraShakeEditorSystemComponentTypeId, BaseSystemComponent);
+    AZ_COMPONENT_IMPL(
+        CameraShakeEditorSystemComponent, "CameraShakeEditorSystemComponent", CameraShakeEditorSystemComponentTypeId, BaseSystemComponent);
 
     void CameraShakeEditorSystemComponent::Reflect(AZ::ReflectContext* context)
     {
         if (auto serializeContext = azrtti_cast<AZ::SerializeContext*>(context))
         {
-            serializeContext->Class<CameraShakeEditorSystemComponent, CameraShakeSystemComponent>()
-                ->Version(0);
+            serializeContext->Class<CameraShakeEditorSystemComponent, CameraShakeSystemComponent>()->Version(0);
         }
     }
 

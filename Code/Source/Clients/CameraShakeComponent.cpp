@@ -44,11 +44,20 @@ namespace CameraShake
                     ->ClassElement(AZ::Edit::ClassElements::EditorData, "")
                     ->Attribute(Attributes::AppearsInAddComponentMenu, AZ_CRC_CE("Game"))
 
-                    ->DataElement(nullptr, &CameraShakeComponent::m_shakeEntityId, "Shake Entity", "Entity to shake (e.g., player camera or primitive). Defaults to active camera if blank.")
+                    ->DataElement(
+                        nullptr,
+                        &CameraShakeComponent::m_shakeEntityId,
+                        "Shake Entity",
+                        "Entity to shake (e.g., player camera or primitive). Defaults to active camera if blank.")
                     ->DataElement(nullptr, &CameraShakeComponent::m_strShake, "Shake Input Key", "Key to initiate or test shake.")
                     ->DataElement(nullptr, &CameraShakeComponent::m_traumaInitial, "Trauma", "Total shake strength")
-                    ->DataElement(nullptr, &CameraShakeComponent::m_translationAmplitudes, "Translation Amplitudes", "X/Y/Z translational shake strengths")
-                    ->DataElement(nullptr, &CameraShakeComponent::m_rotationAmplitudes, "Rotation Amplitudes", "X/Y/Z rotational shake strengths")
+                    ->DataElement(
+                        nullptr,
+                        &CameraShakeComponent::m_translationAmplitudes,
+                        "Translation Amplitudes",
+                        "X/Y/Z translational shake strengths")
+                    ->DataElement(
+                        nullptr, &CameraShakeComponent::m_rotationAmplitudes, "Rotation Amplitudes", "X/Y/Z rotational shake strengths")
                     ->DataElement(
                         nullptr,
                         &CameraShakeComponent::m_traumaDecay,
@@ -65,14 +74,16 @@ namespace CameraShake
                 ->Attribute(AZ::Script::Attributes::Module, "camerashake")
                 ->Attribute(AZ::Script::Attributes::Category, "Camera Shake")
                 ->Event("Start Shake With Defaults", &CameraShakeComponentRequests::StartShakeWithDefaults)
-                ->Event("Start Shake", &CameraShakeComponentRequests::StartShake, AZStd::array<AZ::BehaviorParameterOverrides, 6>{{
-                        AZ::BehaviorParameterOverrides("ShakeEntityId", "Entity to shake (valid ID required)"),
-                            AZ::BehaviorParameterOverrides("Trauma", "Initial trauma strength"),
-                            AZ::BehaviorParameterOverrides("Decay", "Decay rate"),
-                            AZ::BehaviorParameterOverrides("Speed", "Shake frequency"),
-                            AZ::BehaviorParameterOverrides("TranslationAmplitudes", "X/Y/Z translation strengths"),
-                            AZ::BehaviorParameterOverrides("RotationAmplitudes", "X/Y/Z rotation strengths")
-                    }})
+                ->Event(
+                    "Start Shake",
+                    &CameraShakeComponentRequests::StartShake,
+                    AZStd::array<AZ::BehaviorParameterOverrides, 6>{
+                        { AZ::BehaviorParameterOverrides("ShakeEntityId", "Entity to shake (valid ID required)"),
+                          AZ::BehaviorParameterOverrides("Trauma", "Initial trauma strength"),
+                          AZ::BehaviorParameterOverrides("Decay", "Decay rate"),
+                          AZ::BehaviorParameterOverrides("Speed", "Shake frequency"),
+                          AZ::BehaviorParameterOverrides("TranslationAmplitudes", "X/Y/Z translation strengths"),
+                          AZ::BehaviorParameterOverrides("RotationAmplitudes", "X/Y/Z rotation strengths") } })
                 ->Event("Get Trauma", &CameraShakeComponentRequests::GetTrauma)
                 ->Event("Set Trauma", &CameraShakeComponentRequests::SetTrauma)
                 ->Event("Get Decay", &CameraShakeComponentRequests::GetDecay)
@@ -80,8 +91,11 @@ namespace CameraShake
                 ->Event("Get Speed", &CameraShakeComponentRequests::GetSpeed)
                 ->Event("Set Speed", &CameraShakeComponentRequests::SetSpeed)
                 ->Event("Get Shake Entity Id", &CameraShakeComponentRequests::GetShakeEntityId)
-                ->Event("Set Shake Entity Id", &CameraShakeComponentRequests::SetShakeEntityId, AZStd::array<AZ::BehaviorParameterOverrides, 1>{{
-                        AZ::BehaviorParameterOverrides("Shake EntityId", "ID of the entity to shake (invalid falls back to active camera)")}});
+                ->Event(
+                    "Set Shake Entity Id",
+                    &CameraShakeComponentRequests::SetShakeEntityId,
+                    AZStd::array<AZ::BehaviorParameterOverrides, 1>{ { AZ::BehaviorParameterOverrides(
+                        "Shake EntityId", "ID of the entity to shake (invalid falls back to active camera)") } });
         }
     }
 
@@ -233,9 +247,9 @@ namespace CameraShake
         {
             // Create a Vector3 with Perlin Noise values and amplitude multipliers for each axis. Used for translation.
             m_shakeTranslation = AZ::Vector3(
-                GenFastNoise(m_Random) * m_translationAmplitudes.GetX(),
-                GenFastNoise(m_Random + 2) * m_translationAmplitudes.GetY(),
-                GenFastNoise(m_Random + 3) * m_translationAmplitudes.GetZ()) *
+                                     GenFastNoise(m_Random) * m_translationAmplitudes.GetX(),
+                                     GenFastNoise(m_Random + 2) * m_translationAmplitudes.GetY(),
+                                     GenFastNoise(m_Random + 3) * m_translationAmplitudes.GetZ()) *
                 (m_trauma * m_trauma);
 
             // Create a Quaternion with Perlin Noise values and amplitude multipliers for each axis. Used for rotation.
@@ -336,7 +350,13 @@ namespace CameraShake
     }
 
     // Parameterized: Full override (all parameters required)
-    void CameraShakeComponent::StartShake(const AZ::EntityId& shakeEntityId, const float& new_traumaInitial, const float& new_traumaDecay, const float& new_freq, const AZ::Vector3& new_translationAmplitudes, const AZ::Vector3& new_rotationAmplitudes)
+    void CameraShakeComponent::StartShake(
+        const AZ::EntityId& shakeEntityId,
+        const float& new_traumaInitial,
+        const float& new_traumaDecay,
+        const float& new_freq,
+        const AZ::Vector3& new_translationAmplitudes,
+        const AZ::Vector3& new_rotationAmplitudes)
     {
         if (shakeEntityId.IsValid())
         {

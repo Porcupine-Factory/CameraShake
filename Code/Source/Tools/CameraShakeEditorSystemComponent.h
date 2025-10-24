@@ -13,6 +13,7 @@ namespace CameraShake
         , protected AzToolsFramework::EditorEvents::Bus::Handler
     {
         using BaseSystemComponent = CameraShakeSystemComponent;
+
     public:
         AZ_COMPONENT_DECL(CameraShakeEditorSystemComponent);
 

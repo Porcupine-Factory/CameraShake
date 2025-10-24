@@ -6,8 +6,7 @@
 
 namespace CameraShake
 {
-    class CameraShakeModuleInterface
-        : public AZ::Module
+    class CameraShakeModuleInterface : public AZ::Module
     {
     public:
         AZ_TYPE_INFO_WITH_NAME_DECL(CameraShakeModuleInterface)
@@ -21,4 +20,4 @@ namespace CameraShake
          */
         AZ::ComponentTypeList GetRequiredSystemComponents() const override;
     };
-}// namespace CameraShake
+} // namespace CameraShake

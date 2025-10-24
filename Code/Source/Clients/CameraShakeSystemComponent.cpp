@@ -7,16 +7,13 @@
 
 namespace CameraShake
 {
-    AZ_COMPONENT_IMPL(CameraShakeSystemComponent, "CameraShakeSystemComponent",
-        CameraShakeSystemComponentTypeId);
+    AZ_COMPONENT_IMPL(CameraShakeSystemComponent, "CameraShakeSystemComponent", CameraShakeSystemComponentTypeId);
 
     void CameraShakeSystemComponent::Reflect(AZ::ReflectContext* context)
     {
         if (auto serializeContext = azrtti_cast<AZ::SerializeContext*>(context))
         {
-            serializeContext->Class<CameraShakeSystemComponent, AZ::Component>()
-                ->Version(0)
-                ;
+            serializeContext->Class<CameraShakeSystemComponent, AZ::Component>()->Version(0);
         }
     }
 

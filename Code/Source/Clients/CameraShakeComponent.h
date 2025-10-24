@@ -1,14 +1,14 @@
 #pragma once
-#include <CameraShake/CameraShakeTypeIds.h>
+#include "CameraShake/CameraShakeComponentBus.h"
 #include <AzCore/Component/Component.h>
-#include <AzCore/Component/TickBus.h>
 #include <AzCore/Component/EntityBus.h>
+#include <AzCore/Component/TickBus.h>
 #include <AzCore/Math/Random.h>
 #include <AzCore/Math/Vector3.h>
+#include <AzFramework/Components/CameraBus.h>
+#include <CameraShake/CameraShakeTypeIds.h>
 #include <External/FastNoise/FastNoise.h>
 #include <StartingPointInput/InputEventNotificationBus.h>
-#include <AzFramework/Components/CameraBus.h>
-#include "CameraShake/CameraShakeComponentBus.h"
 
 namespace CameraShake
 {
@@ -47,7 +47,13 @@ namespace CameraShake
 
         // CameraShakeComponentRequestBus
         void StartShakeWithDefaults() override;
-        void StartShake(const AZ::EntityId& shakeEntityId, const float& new_traumaInitial, const float& new_traumaDecay, const float& new_freq, const AZ::Vector3& new_translationAmplitudes, const AZ::Vector3& new_rotationAmplitudes) override;
+        void StartShake(
+            const AZ::EntityId& shakeEntityId,
+            const float& new_traumaInitial,
+            const float& new_traumaDecay,
+            const float& new_freq,
+            const AZ::Vector3& new_translationAmplitudes,
+            const AZ::Vector3& new_rotationAmplitudes) override;
         float GetTrauma() const override;
         void SetTrauma(const float& new_traumaInitial) override;
         float GetDecay() const override;

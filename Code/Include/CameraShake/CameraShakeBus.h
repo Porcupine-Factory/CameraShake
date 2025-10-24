@@ -16,8 +16,7 @@ namespace CameraShake
         // Put your public methods here
     };
 
-    class CameraShakeBusTraits
-        : public AZ::EBusTraits
+    class CameraShakeBusTraits : public AZ::EBusTraits
     {
     public:
         //////////////////////////////////////////////////////////////////////////

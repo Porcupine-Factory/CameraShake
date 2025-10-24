@@ -1,12 +1,11 @@
 
+#include "CameraShakeEditorSystemComponent.h"
 #include <CameraShake/CameraShakeTypeIds.h>
 #include <CameraShakeModuleInterface.h>
-#include "CameraShakeEditorSystemComponent.h"
 
 namespace CameraShake
 {
-    class CameraShakeEditorModule
-        : public CameraShakeModuleInterface
+    class CameraShakeEditorModule : public CameraShakeModuleInterface
     {
     public:
         AZ_RTTI(CameraShakeEditorModule, CameraShakeEditorModuleTypeId, CameraShakeModuleInterface);
@@ -16,11 +15,13 @@ namespace CameraShake
         {
             // Push results of [MyComponent]::CreateDescriptor() into m_descriptors here.
             // Add ALL components descriptors associated with this gem to m_descriptors.
-            // This will associate the AzTypeInfo information for the components with the the SerializeContext, BehaviorContext and EditContext.
-            // This happens through the [MyComponent]::Reflect() function.
-            m_descriptors.insert(m_descriptors.end(), {
-                CameraShakeEditorSystemComponent::CreateDescriptor(),
-            });
+            // This will associate the AzTypeInfo information for the components with the the SerializeContext, BehaviorContext and
+            // EditContext. This happens through the [MyComponent]::Reflect() function.
+            m_descriptors.insert(
+                m_descriptors.end(),
+                {
+                    CameraShakeEditorSystemComponent::CreateDescriptor(),
+                });
         }
 
         /**
@@ -29,12 +30,12 @@ namespace CameraShake
          */
         AZ::ComponentTypeList GetRequiredSystemComponents() const override
         {
-            return AZ::ComponentTypeList {
+            return AZ::ComponentTypeList{
                 azrtti_typeid<CameraShakeEditorSystemComponent>(),
             };
         }
     };
-}// namespace CameraShake
+} // namespace CameraShake
 
 #if defined(O3DE_GEM_NAME)
 AZ_DECLARE_MODULE_CLASS(AZ_JOIN(Gem_, O3DE_GEM_NAME, _Editor), CameraShake::CameraShakeEditorModule)
