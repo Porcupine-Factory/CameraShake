@@ -89,6 +89,7 @@ namespace CameraShake
                     &CameraShakeComponentRequests::AddTrauma,
                     AZStd::array<AZ::BehaviorParameterOverrides, 1>{
                         { AZ::BehaviorParameterOverrides("Amount", "Trauma to add, total is clamped to [0,1]") } })
+                ->Event("Stop Shake", &CameraShakeComponentRequests::StopShake)
                 ->Event("Get Trauma", &CameraShakeComponentRequests::GetTrauma)
                 ->Event("Set Trauma", &CameraShakeComponentRequests::SetTrauma)
                 ->Event("Get Decay", &CameraShakeComponentRequests::GetDecay)
@@ -411,6 +412,15 @@ namespace CameraShake
     {
         m_trauma = AZ::GetClamp(m_trauma + amount, 0.f, 1.f);
         m_initiateShake = m_trauma > 0.f;
+    }
+
+    // Immediately ends the shake and removes any applied offsets.
+    // Required for sustained shakes (decay = 0) such as idle breathing.
+    void CameraShakeComponent::StopShake()
+    {
+        m_trauma = 0.f;
+        m_initiateShake = false;
+        RemoveShakeOffsets();
     }
 
     float CameraShakeComponent::GetTrauma() const

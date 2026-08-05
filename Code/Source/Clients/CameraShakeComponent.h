@@ -56,6 +56,7 @@ namespace CameraShake
             const AZ::Vector3& new_translationAmplitudes,
             const AZ::Vector3& new_rotationAmplitudes) override;
         void AddTrauma(float amount) override;
+        void StopShake() override;
         float GetTrauma() const override;
         void SetTrauma(const float& new_traumaInitial) override;
         float GetDecay() const override;
