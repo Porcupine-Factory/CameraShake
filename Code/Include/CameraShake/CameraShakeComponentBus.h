@@ -15,6 +15,7 @@ namespace CameraShake
 
         virtual void StartShakeWithDefaults() = 0;
         virtual void StartShake(const AZ::EntityId&, const float&, const float&, const float&, const AZ::Vector3&, const AZ::Vector3&) = 0;
+        virtual void AddTrauma(float amount) = 0;
         virtual float GetTrauma() const = 0;
         virtual void SetTrauma(const float&) = 0;
         virtual float GetDecay() const = 0;

@@ -84,6 +84,11 @@ namespace CameraShake
                           AZ::BehaviorParameterOverrides("Speed", "Shake frequency"),
                           AZ::BehaviorParameterOverrides("TranslationAmplitudes", "X/Y/Z translation strengths"),
                           AZ::BehaviorParameterOverrides("RotationAmplitudes", "X/Y/Z rotation strengths") } })
+                ->Event(
+                    "Add Trauma",
+                    &CameraShakeComponentRequests::AddTrauma,
+                    AZStd::array<AZ::BehaviorParameterOverrides, 1>{
+                        { AZ::BehaviorParameterOverrides("Amount", "Trauma to add, total is clamped to [0,1]") } })
                 ->Event("Get Trauma", &CameraShakeComponentRequests::GetTrauma)
                 ->Event("Set Trauma", &CameraShakeComponentRequests::SetTrauma)
                 ->Event("Get Decay", &CameraShakeComponentRequests::GetDecay)
@@ -113,8 +118,8 @@ namespace CameraShake
         m_defaultRotationAmplitudes = m_rotationAmplitudes;
         m_defaultShakeEntityId = m_shakeEntityId;
 
-        // When the entity is activated, set our current trauma level (m_trauma) to m_traumaInitial
-        m_trauma = m_traumaInitial;
+        // Trauma starts at zero and accumulates via AddTrauma or is set by StartShake
+        m_trauma = 0.f;
 
         // Setup shake entity
         if (!m_shakeEntityId.IsValid())
@@ -191,7 +196,7 @@ namespace CameraShake
 
         if (*inputId == m_shakeEventId && value > 0.f)
         {
-            StartShakeWithDefaults();
+            AddTrauma(m_traumaInitial);
         }
     }
 
@@ -276,7 +281,6 @@ namespace CameraShake
         else
         {
             m_initiateShake = false;
-            m_trauma = m_traumaInitial;
 
             // Reset our shake offsets
             m_shakeTranslation = AZ::Vector3::CreateZero();
@@ -290,6 +294,12 @@ namespace CameraShake
 
     void CameraShakeComponent::SetShakeEntity(const AZ::EntityId& id)
     {
+        // Already targeting this entity, keep the shake in progress undisturbed
+        if (id == m_shakeEntityId && m_shakeEntityPtr != nullptr)
+        {
+            return;
+        }
+
         // Remove any shake still applied to the previous entity
         RemoveShakeOffsets();
 
@@ -349,7 +359,8 @@ namespace CameraShake
         return m_perlinFastNoise;
     }
 
-    // Parameterless: Uses component defaults
+    // Restarts the shake from zero using the component's editor-configured values,
+    // discarding any runtime changes.
     void CameraShakeComponent::StartShakeWithDefaults()
     {
         // Reset runtime state to editor component values (ignores prior overrides)
@@ -366,7 +377,9 @@ namespace CameraShake
         m_currentTime = 0.f;
     }
 
-    // Parameterized: Full override (all parameters required)
+    // Restarts the shake with a full parameter override, for one-off shakes that
+    // differs from the editor configuration (e.g. an idle breathing
+    // on a component tuned for gunfire). Hard-restarts any shake in progress.
     void CameraShakeComponent::StartShake(
         const AZ::EntityId& shakeEntityId,
         const float& new_traumaInitial,
@@ -389,6 +402,15 @@ namespace CameraShake
         m_initiateShake = true;
         m_trauma = m_traumaInitial;
         m_currentTime = 0.f;
+    }
+
+    // Adds trauma to the shake, clamped to [0,1]. Intensity scales with trauma squared.
+    // Typically used for gameplay events (hits, footsteps, explosions).
+    // Repeated events stack smoothly. Perlin curve stays continuous so noise timeline is never reset
+    void CameraShakeComponent::AddTrauma(float amount)
+    {
+        m_trauma = AZ::GetClamp(m_trauma + amount, 0.f, 1.f);
+        m_initiateShake = m_trauma > 0.f;
     }
 
     float CameraShakeComponent::GetTrauma() const

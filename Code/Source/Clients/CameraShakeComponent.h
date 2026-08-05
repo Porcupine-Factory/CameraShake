@@ -55,6 +55,7 @@ namespace CameraShake
             const float& new_freq,
             const AZ::Vector3& new_translationAmplitudes,
             const AZ::Vector3& new_rotationAmplitudes) override;
+        void AddTrauma(float amount) override;
         float GetTrauma() const override;
         void SetTrauma(const float& new_traumaInitial) override;
         float GetDecay() const override;
@@ -87,7 +88,7 @@ namespace CameraShake
         AZ::Quaternion m_shakeRotation = AZ::Quaternion::CreateIdentity();
 
         // Component defaults
-        float m_defaultTraumaInitial = 1.3f;
+        float m_defaultTraumaInitial = 1.f;
         float m_defaultTraumaDecay = 2.f;
         float m_defaultFreq = 19.f;
         AZ::Vector3 m_defaultTranslationAmplitudes = AZ::Vector3(0.02f, 0.f, 0.02f);
