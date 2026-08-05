@@ -1,32 +1,33 @@
 {
-    "gem_name": "CameraShake",
-    "version": "1.0.0",
-    "display_name": "Camera Shake",
-    "license": "MIT",
-    "license_url": "",
-    "origin": "Porcupine Factory",
-    "origin_url": "",
-    "type": "Code",
-    "summary": "Applies shaking effect to your camera or other entities.",
-    "canonical_tags": [
-        "Gem"
-    ],
-    "user_tags": [
-        "CameraShake"
-    ],
-    "platforms": [
-        "Linux","Windows"
-    ],
-    "icon_path": "",
-    "requirements": "This gem requires the FastNoise and StartingPointInput gems.",
-    "documentation_url": "",
-    "dependencies": [
-        "FastNoise",
-        "StartingPointInput"
-    ],
-    "repo_uri": "",
-    "compatible_engines": [
-    ],
-    "engine_api_dependencies":[
-    ]
+  "gem_name": "CameraShake",
+  "version": "1.0.0",
+  "display_name": "Camera Shake",
+  "license": "MIT",
+  "license_url": "https://opensource.org/license/mit",
+  "origin": "Porcupine Factory",
+  "origin_url": "https://github.com/Porcupine-Factory/CameraShake.git",
+  "type": "Code",
+  "summary": "A camera shake that applies smooth Perlin-noise translation and rotation shake to your camera or any other entity.",
+  "canonical_tags": [
+    "Gem"
+  ],
+  "user_tags": [
+    "CameraShake"
+  ],
+  "platforms": [
+    "Linux",
+    "Windows"
+  ],
+  "icon_path": "",
+  "requirements": "This gem requires the FastNoise and StartingPointInput gems.",
+  "documentation_url": "",
+  "dependencies": [
+    "FastNoise",
+    "StartingPointInput"
+  ],
+  "repo_uri": "",
+  "compatible_engines": [
+  ],
+  "engine_api_dependencies": [
+  ]
 }
