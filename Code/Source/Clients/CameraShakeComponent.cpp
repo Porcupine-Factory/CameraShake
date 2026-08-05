@@ -237,11 +237,11 @@ namespace CameraShake
         // Subtracting the translation caused by shake to get a "clean" version of our current local translation
         AZ::Vector3 adjustedCameraTranslation = m_currentCameraTranslation - m_shakeTranslation;
 
-        // Getting our entity's current rotation using Euler Radians to make the math a bit easier
-        m_currentCameraRotation = m_shakeEntityPtr->GetTransform()->GetLocalTM().GetRotation().GetEulerRadians();
+        // Getting our entity's current local rotation
+        const AZ::Quaternion currentCameraRotation = m_shakeEntityPtr->GetTransform()->GetLocalTM().GetRotation();
 
-        // Subtracting the rotation caused by shake to get a "clean" version of our current local rotation
-        AZ::Vector3 adjustedCameraRotation = m_currentCameraRotation - m_shakeRotation;
+        // Removing the rotation caused by shake to get a "clean" version of our current local rotation
+        const AZ::Quaternion adjustedCameraRotation = (currentCameraRotation * m_shakeRotation.GetInverseFull()).GetNormalized();
 
         if (m_trauma > 0)
         {
@@ -253,21 +253,18 @@ namespace CameraShake
                 (m_trauma * m_trauma);
 
             // Create a Quaternion with Perlin Noise values and amplitude multipliers for each axis. Used for rotation.
-            AZ::Quaternion shakeRotation = AZ::Quaternion::CreateFromEulerAnglesRadians(
+            m_shakeRotation = AZ::Quaternion::CreateFromEulerAnglesRadians(
                 AZ::Vector3(
                     GenFastNoise(m_Random + 4) * m_rotationAmplitudes.GetX(),
                     GenFastNoise(m_Random + 5) * m_rotationAmplitudes.GetY(),
                     GenFastNoise(m_Random + 6) * m_rotationAmplitudes.GetZ()) *
                 (m_trauma * m_trauma));
 
-            // Converting to Euler Radians to make the math a bit easier
-            m_shakeRotation = shakeRotation.GetEulerRadians();
-
             // Set our entity's translation to the clean translation plus the shake values
             m_shakeEntityPtr->GetTransform()->SetLocalTranslation(adjustedCameraTranslation + m_shakeTranslation);
 
-            // Set our entity's rotation to the clean rotation plus the shake values
-            m_shakeEntityPtr->GetTransform()->SetLocalRotation(adjustedCameraRotation + m_shakeRotation);
+            // Set our entity's rotation to the clean rotation plus the shake rotation
+            m_shakeEntityPtr->GetTransform()->SetLocalRotationQuaternion(adjustedCameraRotation * m_shakeRotation);
 
             // Reducing the trauma amount over time. GetMax() ensures trauma is never less than 0
             m_trauma = AZ::GetMax(m_trauma - m_traumaDecay * deltaTime, 0.f);
@@ -277,13 +274,13 @@ namespace CameraShake
             m_initiateShake = false;
             m_trauma = m_traumaInitial;
 
-            // Reset our shake/noise vectors back to 0
+            // Reset our shake offsets
             m_shakeTranslation = AZ::Vector3::CreateZero();
-            m_shakeRotation = AZ::Vector3::CreateZero();
+            m_shakeRotation = AZ::Quaternion::CreateIdentity();
 
             // Immediate reset to clean position/rotation
             m_shakeEntityPtr->GetTransform()->SetLocalTranslation(adjustedCameraTranslation);
-            m_shakeEntityPtr->GetTransform()->SetLocalRotation(adjustedCameraRotation);
+            m_shakeEntityPtr->GetTransform()->SetLocalRotationQuaternion(adjustedCameraRotation);
         }
     }
 

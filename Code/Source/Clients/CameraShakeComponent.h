@@ -3,6 +3,7 @@
 #include <AzCore/Component/Component.h>
 #include <AzCore/Component/EntityBus.h>
 #include <AzCore/Component/TickBus.h>
+#include <AzCore/Math/Quaternion.h>
 #include <AzCore/Math/Random.h>
 #include <AzCore/Math/Vector3.h>
 #include <AzFramework/Components/CameraBus.h>
@@ -81,9 +82,8 @@ namespace CameraShake
         bool m_initiateShake = false;
 
         AZ::Vector3 m_currentCameraTranslation = AZ::Vector3::CreateZero();
-        AZ::Vector3 m_currentCameraRotation = AZ::Vector3::CreateZero();
         AZ::Vector3 m_shakeTranslation = AZ::Vector3::CreateZero();
-        AZ::Vector3 m_shakeRotation = AZ::Vector3::CreateZero();
+        AZ::Quaternion m_shakeRotation = AZ::Quaternion::CreateIdentity();
 
         // Component defaults
         float m_defaultTraumaInitial = 1.3f;
