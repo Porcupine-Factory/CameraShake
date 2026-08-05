@@ -78,6 +78,7 @@ namespace CameraShake
         void Shake(const float& deltaTime);
         float GenFastNoise(int genSeed);
         void SetShakeEntity(const AZ::EntityId& id);
+        void RemoveShakeOffsets();
 
         bool m_initiateShake = false;
 

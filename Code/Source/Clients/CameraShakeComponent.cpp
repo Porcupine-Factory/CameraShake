@@ -136,6 +136,10 @@ namespace CameraShake
 
     void CameraShakeComponent::Deactivate()
     {
+        // Remove any shake still applied so the entity isn't left displaced
+        RemoveShakeOffsets();
+        m_initiateShake = false;
+
         CameraShakeComponentRequestBus::Handler::BusDisconnect();
 
         AZ::TickBus::Handler::BusDisconnect();
@@ -286,6 +290,9 @@ namespace CameraShake
 
     void CameraShakeComponent::SetShakeEntity(const AZ::EntityId& id)
     {
+        // Remove any shake still applied to the previous entity
+        RemoveShakeOffsets();
+
         // Disconnect existing handlers
         if (m_needsCameraFallback)
         {
@@ -314,6 +321,19 @@ namespace CameraShake
                 AZ::EntityBus::Handler::BusConnect(m_shakeEntityId);
             }
         }
+    }
+
+    void CameraShakeComponent::RemoveShakeOffsets()
+    {
+        if (m_shakeEntityPtr)
+        {
+            const AZ::Transform localTM = m_shakeEntityPtr->GetTransform()->GetLocalTM();
+            m_shakeEntityPtr->GetTransform()->SetLocalTranslation(localTM.GetTranslation() - m_shakeTranslation);
+            m_shakeEntityPtr->GetTransform()->SetLocalRotationQuaternion(
+                (localTM.GetRotation() * m_shakeRotation.GetInverseFull()).GetNormalized());
+        }
+        m_shakeTranslation = AZ::Vector3::CreateZero();
+        m_shakeRotation = AZ::Quaternion::CreateIdentity();
     }
 
     float CameraShakeComponent::GenFastNoise(int Seed)
