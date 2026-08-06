@@ -67,6 +67,30 @@ namespace CameraShake
         void SetShakeEntityId(const AZ::EntityId& new_entityId) override;
 
     private:
+        // Removes the previous frame's shake before anything else moves the shake entity, since this component
+        // ticks at TICK_DEFAULT and by then the offsets can no longer be recovered from the transform
+        class ShakeOffsetRemovalHandler : public AZ::TickBus::Handler
+        {
+        public:
+            explicit ShakeOffsetRemovalHandler(CameraShakeComponent& cameraShakeObject)
+                : m_cameraShakeObject(cameraShakeObject)
+            {
+            }
+            int GetTickOrder() override
+            {
+                return AZ::TICK_FIRST;
+            }
+            void OnTick([[maybe_unused]] float deltaTime, AZ::ScriptTimePoint) override
+            {
+                m_cameraShakeObject.RemoveShakeOffsets();
+            }
+
+        private:
+            CameraShakeComponent& m_cameraShakeObject;
+        };
+
+        ShakeOffsetRemovalHandler m_shakeOffsetRemovalHandler{ *this };
+
         AZ::Entity* GetActiveCamera() const;
 
         AZ::EntityId m_shakeEntityId;

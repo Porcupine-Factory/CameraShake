@@ -111,6 +111,7 @@ namespace CameraShake
         InputEventNotificationBus::MultiHandler::BusConnect(m_shakeEventId);
 
         AZ::TickBus::Handler::BusConnect();
+        m_shakeOffsetRemovalHandler.BusConnect();
 
         m_defaultTraumaInitial = m_traumaInitial;
         m_defaultTraumaDecay = m_traumaDecay;
@@ -149,6 +150,7 @@ namespace CameraShake
         CameraShakeComponentRequestBus::Handler::BusDisconnect();
 
         AZ::TickBus::Handler::BusDisconnect();
+        m_shakeOffsetRemovalHandler.BusDisconnect();
         InputEventNotificationBus::MultiHandler::BusDisconnect();
         if (m_needsCameraFallback)
         {
@@ -241,17 +243,10 @@ namespace CameraShake
         AZ::SimpleLcgRandom getSeed;
         m_Random = getSeed.GetRandom();
 
-        // Getting our entity's current local translation
+        // Get the entity's current local translation and rotation, which are already "clean" since
+        // m_shakeOffsetRemovalHandler removed the previous frame's shake at the start of the frame.
         m_currentCameraTranslation = m_shakeEntityPtr->GetTransform()->GetLocalTM().GetTranslation();
-
-        // Subtracting the translation caused by shake to get a "clean" version of our current local translation
-        AZ::Vector3 adjustedCameraTranslation = m_currentCameraTranslation - m_shakeTranslation;
-
-        // Getting our entity's current local rotation
         const AZ::Quaternion currentCameraRotation = m_shakeEntityPtr->GetTransform()->GetLocalTM().GetRotation();
-
-        // Removing the rotation caused by shake to get a "clean" version of our current local rotation
-        const AZ::Quaternion adjustedCameraRotation = (currentCameraRotation * m_shakeRotation.GetInverseFull()).GetNormalized();
 
         if (m_trauma > 0)
         {
@@ -271,10 +266,10 @@ namespace CameraShake
                 (m_trauma * m_trauma));
 
             // Set our entity's translation to the clean translation plus the shake values
-            m_shakeEntityPtr->GetTransform()->SetLocalTranslation(adjustedCameraTranslation + m_shakeTranslation);
+            m_shakeEntityPtr->GetTransform()->SetLocalTranslation(m_currentCameraTranslation + m_shakeTranslation);
 
             // Set our entity's rotation to the clean rotation plus the shake rotation
-            m_shakeEntityPtr->GetTransform()->SetLocalRotationQuaternion(adjustedCameraRotation * m_shakeRotation);
+            m_shakeEntityPtr->GetTransform()->SetLocalRotationQuaternion(currentCameraRotation * m_shakeRotation);
 
             // Reducing the trauma amount over time. GetMax() ensures trauma is never less than 0
             m_trauma = AZ::GetMax(m_trauma - m_traumaDecay * deltaTime, 0.f);
@@ -282,14 +277,6 @@ namespace CameraShake
         else
         {
             m_initiateShake = false;
-
-            // Reset our shake offsets
-            m_shakeTranslation = AZ::Vector3::CreateZero();
-            m_shakeRotation = AZ::Quaternion::CreateIdentity();
-
-            // Immediate reset to clean position/rotation
-            m_shakeEntityPtr->GetTransform()->SetLocalTranslation(adjustedCameraTranslation);
-            m_shakeEntityPtr->GetTransform()->SetLocalRotationQuaternion(adjustedCameraRotation);
         }
     }
 
@@ -336,6 +323,12 @@ namespace CameraShake
 
     void CameraShakeComponent::RemoveShakeOffsets()
     {
+        // There are no offsets applied, so don't write the transform
+        if (m_shakeTranslation.IsZero() && m_shakeRotation.IsIdentity())
+        {
+            return;
+        }
+
         if (m_shakeEntityPtr)
         {
             const AZ::Transform localTM = m_shakeEntityPtr->GetTransform()->GetLocalTM();
