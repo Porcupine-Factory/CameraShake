@@ -50,19 +50,19 @@ namespace CameraShake
         void StartShakeWithDefaults() override;
         void StartShake(
             const AZ::EntityId& shakeEntityId,
-            const float& new_traumaInitial,
-            const float& new_traumaDecay,
-            const float& new_freq,
+            const float new_traumaInitial,
+            const float new_traumaDecay,
+            const float new_freq,
             const AZ::Vector3& new_translationAmplitudes,
             const AZ::Vector3& new_rotationAmplitudes) override;
         void AddTrauma(float amount) override;
         void StopShake() override;
         float GetTrauma() const override;
-        void SetTrauma(const float& new_traumaInitial) override;
+        void SetTrauma(const float new_traumaInitial) override;
         float GetDecay() const override;
-        void SetDecay(const float& new_traumaDecay) override;
+        void SetDecay(const float new_traumaDecay) override;
         float GetSpeed() const override;
-        void SetSpeed(const float& new_freq) override;
+        void SetSpeed(const float new_freq) override;
         AZ::EntityId GetShakeEntityId() const override;
         void SetShakeEntityId(const AZ::EntityId& new_entityId) override;
 
@@ -101,7 +101,7 @@ namespace CameraShake
         StartingPointInput::InputEventNotificationId m_shakeEventId;
         AZStd::string m_strShake = "Camera Shake";
 
-        void Shake(const float& deltaTime);
+        void Shake(const float deltaTime);
         float GenFastNoise(int genSeed);
         void SetShakeEntity(const AZ::EntityId& id);
         void RemoveShakeOffsets();

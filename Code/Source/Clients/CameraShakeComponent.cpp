@@ -231,7 +231,7 @@ namespace CameraShake
         return ca->FindEntity(activeCameraId);
     }
 
-    void CameraShakeComponent::Shake(const float& deltaTime)
+    void CameraShakeComponent::Shake(const float deltaTime)
     {
         if (!m_initiateShake || !m_shakeEntityPtr)
         {
@@ -376,9 +376,9 @@ namespace CameraShake
     // on a component tuned for gunfire). Hard-restarts any shake in progress.
     void CameraShakeComponent::StartShake(
         const AZ::EntityId& shakeEntityId,
-        const float& new_traumaInitial,
-        const float& new_traumaDecay,
-        const float& new_freq,
+        const float new_traumaInitial,
+        const float new_traumaDecay,
+        const float new_freq,
         const AZ::Vector3& new_translationAmplitudes,
         const AZ::Vector3& new_rotationAmplitudes)
     {
@@ -421,7 +421,7 @@ namespace CameraShake
         return m_traumaInitial;
     }
 
-    void CameraShakeComponent::SetTrauma(const float& new_traumaInitial)
+    void CameraShakeComponent::SetTrauma(const float new_traumaInitial)
     {
         m_traumaInitial = new_traumaInitial;
     }
@@ -431,7 +431,7 @@ namespace CameraShake
         return m_traumaDecay;
     }
 
-    void CameraShakeComponent::SetDecay(const float& new_traumaDecay)
+    void CameraShakeComponent::SetDecay(const float new_traumaDecay)
     {
         m_traumaDecay = new_traumaDecay;
     }
@@ -441,7 +441,7 @@ namespace CameraShake
         return m_freq;
     }
 
-    void CameraShakeComponent::SetSpeed(const float& new_freq)
+    void CameraShakeComponent::SetSpeed(const float new_freq)
     {
         m_freq = new_freq;
     }
