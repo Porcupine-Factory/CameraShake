@@ -376,21 +376,21 @@ namespace CameraShake
     // on a component tuned for gunfire). Hard-restarts any shake in progress.
     void CameraShakeComponent::StartShake(
         const AZ::EntityId& shakeEntityId,
-        const float new_traumaInitial,
-        const float new_traumaDecay,
-        const float new_freq,
-        const AZ::Vector3& new_translationAmplitudes,
-        const AZ::Vector3& new_rotationAmplitudes)
+        const float traumaInitial,
+        const float traumaDecay,
+        const float freq,
+        const AZ::Vector3& translationAmplitudes,
+        const AZ::Vector3& rotationAmplitudes)
     {
         if (shakeEntityId.IsValid())
         {
             SetShakeEntity(shakeEntityId);
         }
-        m_traumaInitial = new_traumaInitial;
-        m_traumaDecay = new_traumaDecay;
-        m_freq = new_freq;
-        m_translationAmplitudes = new_translationAmplitudes;
-        m_rotationAmplitudes = new_rotationAmplitudes;
+        m_traumaInitial = traumaInitial;
+        m_traumaDecay = traumaDecay;
+        m_freq = freq;
+        m_translationAmplitudes = translationAmplitudes;
+        m_rotationAmplitudes = rotationAmplitudes;
 
         // Start the shake with overridden values
         m_initiateShake = true;
@@ -421,9 +421,9 @@ namespace CameraShake
         return m_traumaInitial;
     }
 
-    void CameraShakeComponent::SetTrauma(const float new_traumaInitial)
+    void CameraShakeComponent::SetTrauma(const float traumaInitial)
     {
-        m_traumaInitial = new_traumaInitial;
+        m_traumaInitial = traumaInitial;
     }
 
     float CameraShakeComponent::GetDecay() const
@@ -431,9 +431,9 @@ namespace CameraShake
         return m_traumaDecay;
     }
 
-    void CameraShakeComponent::SetDecay(const float new_traumaDecay)
+    void CameraShakeComponent::SetDecay(const float traumaDecay)
     {
-        m_traumaDecay = new_traumaDecay;
+        m_traumaDecay = traumaDecay;
     }
 
     float CameraShakeComponent::GetSpeed() const
@@ -441,9 +441,9 @@ namespace CameraShake
         return m_freq;
     }
 
-    void CameraShakeComponent::SetSpeed(const float new_freq)
+    void CameraShakeComponent::SetSpeed(const float freq)
     {
-        m_freq = new_freq;
+        m_freq = freq;
     }
 
     AZ::EntityId CameraShakeComponent::GetShakeEntityId() const

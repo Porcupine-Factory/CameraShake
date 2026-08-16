@@ -50,21 +50,21 @@ namespace CameraShake
         void StartShakeWithDefaults() override;
         void StartShake(
             const AZ::EntityId& shakeEntityId,
-            const float new_traumaInitial,
-            const float new_traumaDecay,
-            const float new_freq,
-            const AZ::Vector3& new_translationAmplitudes,
-            const AZ::Vector3& new_rotationAmplitudes) override;
+            const float traumaInitial,
+            const float traumaDecay,
+            const float freq,
+            const AZ::Vector3& translationAmplitudes,
+            const AZ::Vector3& rotationAmplitudes) override;
         void AddTrauma(float amount) override;
         void StopShake() override;
         float GetTrauma() const override;
-        void SetTrauma(const float new_traumaInitial) override;
+        void SetTrauma(const float traumaInitial) override;
         float GetDecay() const override;
-        void SetDecay(const float new_traumaDecay) override;
+        void SetDecay(const float traumaDecay) override;
         float GetSpeed() const override;
-        void SetSpeed(const float new_freq) override;
+        void SetSpeed(const float freq) override;
         AZ::EntityId GetShakeEntityId() const override;
-        void SetShakeEntityId(const AZ::EntityId& new_entityId) override;
+        void SetShakeEntityId(const AZ::EntityId& entityId) override;
 
     private:
         // Removes the previous frame's shake before anything else moves the shake entity, since this component
